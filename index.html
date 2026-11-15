@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1018"><meta name="description" content="FIT MASTER — персональный дневник тренировок для зала и бассейна с контролем самочувствия.">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css">
+<title>FIT MASTER</title>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">F<span>+</span></div><div><b>FIT MASTER</b><small>YOUR TRAINING SPACE</small></div></div>
+    <nav class="side-nav" aria-label="Основная навигация">
+      <button class="nav-item active" data-view="home"><span>◈</span> Обзор</button>
+      <button class="nav-item" data-view="plan"><span>▦</span> Моя программа</button>
+      <button class="nav-item" data-view="library"><span>◉</span> Библиотека</button>
+      <button class="nav-item" data-view="progress"><span>⌁</span> Динамика</button>
+    </nav>
+    <div class="sidebar-bottom"><div class="offline-pill"><i></i> Автономный режим</div><small>Данные хранятся на этом устройстве</small></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow" id="todayLabel">ТВОЙ ПЛАН • СЕГОДНЯ</div><h1 id="pageTitle">Обзор</h1></div><div class="top-actions"><span class="status-chip"><i></i> OFFLINE READY</span><div class="avatar">FM</div></div></header>
+    <section class="view active" id="view-home">
+      <div class="hero-card"><div class="hero-copy"><span class="tag">PERSONAL FITNESS JOURNAL</span><h2>Сильнее.<br><em>Умнее.</em> В своём темпе.</h2><p>Зал, бассейн и восстановление — в одном пространстве. Отслеживай нагрузку и самочувствие без гонки за результатом.</p><button class="primary-btn" data-go="plan">Открыть программу <b>↗</b></button></div><div class="hero-art"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="hero-ring">FIT<br><b>01</b></div><div class="hero-caption">CONSISTENCY<br>OVER INTENSITY</div></div></div>
+      <div class="section-head"><div><div class="eyebrow">ТВОЯ СИСТЕМА</div><h2>Сегодня в фокусе</h2></div><span class="muted">Персональный режим</span></div>
+      <div class="stats-grid"><article class="stat-card"><div class="stat-icon violet">◷</div><span>Тренировок в неделю</span><strong>2–3</strong><small>Комбинированный формат</small></article><article class="stat-card"><div class="stat-icon lime">↗</div><span>Главный приоритет</span><strong>Баланс</strong><small>Сила • мобильность • вода</small></article><article class="stat-card"><div class="stat-icon blue">♡</div><span>Контроль состояния</span><strong>Каждый раз</strong><small>Боль и симптомы важнее плана</small></article></div>
+      <div class="dashboard-grid"><article class="panel safety-panel"><div class="panel-title"><div><div class="eyebrow">ВАЖНО ДЛЯ ТВОЕЙ ПРОГРАММЫ</div><h3>Сначала безопасность</h3></div><span class="alert-icon">!</span></div><p>При нескольких грыжах и боли, отдающей в ногу, тренировочную нагрузку нужно согласовать с врачом или физиотерапевтом. Пока это не сделано, приложение не назначает силовые упражнения и плавательные сессии.</p><div class="safety-footer"><span class="safety-state"><i></i> Режим осторожности включён</span><button class="text-btn" data-go="plan">Подробнее →</button></div></article>
+      <article class="panel check-panel"><div class="panel-title"><div><div class="eyebrow">ПЕРЕД АКТИВНОСТЬЮ</div><h3>Как ты сегодня?</h3></div><span class="check-date" id="checkDate">СЕГОДНЯ</span></div><label class="field-label" for="painRange">Уровень боли <b id="painValue">0 / 10</b></label><input id="painRange" type="range" min="0" max="10" value="0"><div class="range-ends"><span>Нет боли</span><span>Максимальная</span></div><label class="field-label" for="feeling">Самочувствие</label><select id="feeling"><option value="Хорошее">Хорошее</option><option value="Нормальное">Нормальное</option><option value="Усталость">Усталость</option><option value="Есть симптомы">Есть симптомы</option></select><button class="primary-btn full" id="saveCheck">Сохранить отметку <b>✓</b></button><div class="saved-note" id="saveNote" aria-live="polite"></div></article></div>
+      <div class="disclaimer"><span>ⓘ</span><p><b>Важно.</b> Это дневник и образовательный помощник, а не медицинское назначение. Если появились новые или нарастающие слабость в ноге, онемение в области промежности, задержка/недержание мочи или стула — нужна срочная медицинская помощь.</p></div>
+    </section>
+    <section class="view" id="view-plan">
+      <div class="page-intro"><div class="eyebrow">TRAINING BLUEPRINT</div><h2>Моя программа</h2><p>Сочетаем зал и бассейн в гибком графике 2–3 раза в неделю. Конкретные упражнения добавим после оценки специалистом.</p></div>
+      <div class="notice-card"><div class="notice-symbol">✳</div><div><b>Персональный режим осторожности активен</b><p>Из-за нескольких пояснично-крестцовых грыж и боли с распространением в ногу нельзя безопасно подобрать нагрузку только по этим данным. До консультации не используй приложение как план силовых тренировок или плавания.</p></div></div>
+      <div class="section-head"><div><div class="eyebrow">ПРИМЕР НЕДЕЛЬНОЙ СТРУКТУРЫ</div><h2>Ритм без перегруза</h2></div><span class="muted">2–3 активности</span></div>
+      <div class="week-grid"><article class="day-card"><span class="day-number">01</span><div class="day-type purple">ЗАЛ</div><h3>Силовая сессия</h3><p>Будет сформирована после согласования допустимых движений, нагрузки и ограничений.</p><span class="locked">▣ ПОКА НЕ ДОСТУПНО</span></article><article class="day-card"><span class="day-number">02</span><div class="day-type aqua">БАССЕЙН</div><h3>Водная сессия</h3><p>Вид плавания, дистанция и упражнения в воде — только после индивидуальной оценки симптомов.</p><span class="locked">▣ ПОКА НЕ ДОСТУПНО</span></article><article class="day-card"><span class="day-number">03</span><div class="day-type orange">ВОССТАНОВЛЕНИЕ</div><h3>Лёгкая активность</h3><p>Объём повседневной активности ориентируй на симптомы и рекомендации лечащего специалиста.</p><span class="locked">◷ ПО САМОЧУВСТВИЮ</span></article></div>
+      <div class="panel clearance"><div><div class="eyebrow">СЛЕДУЮЩИЙ ШАГ</div><h3>Настроить программу после консультации</h3><p>Попроси врача/физиотерапевта уточнить допустимые движения, ограничения по нагрузке и критерии остановки. Затем внесём их в приложение.</p></div><button class="outline-btn" id="clearanceBtn">Отметить консультацию</button></div>
+    </section>
+    <section class="view" id="view-library">
+      <div class="page-intro"><div class="eyebrow">MOVEMENT KNOWLEDGE BASE</div><h2>Библиотека</h2><p>Справочник для планирования сессий. Метка «требует оценки» означает, что движение нельзя считать безопасным автоматически.</p></div>
+      <div class="library-tools"><input id="searchExercises" type="search" placeholder="⌕  Найти упражнение или движение…"><select id="categoryFilter"><option value="all">Все категории</option><option value="gym">Тренажёрный зал</option><option value="pool">Бассейн</option><option value="recovery">Восстановление</option></select></div>
+      <div class="library-grid" id="libraryGrid"></div>
+      <div class="disclaimer"><span>ⓘ</span><p>В библиотеке намеренно нет отметок «безопасно при грыже»: переносимость зависит от симптомов, уровня поражения и техники. Не начинай новое движение без согласования.</p></div>
+    </section>
+    <section class="view" id="view-progress">
+      <div class="page-intro"><div class="eyebrow">YOUR JOURNEY</div><h2>Динамика</h2><p>Смотри не только на тренировки, но и на то, как тело реагирует на нагрузку.</p></div>
+      <div class="stats-grid"><article class="stat-card"><div class="stat-icon violet">▤</div><span>Отметок самочувствия</span><strong id="logCount">0</strong><small>Сохранено на устройстве</small></article><article class="stat-card"><div class="stat-icon lime">♡</div><span>Средняя боль</span><strong id="avgPain">—</strong><small>По сохранённым отметкам</small></article><article class="stat-card"><div class="stat-icon blue">◷</div><span>Последняя запись</span><strong id="lastLog">—</strong><small>Локальный дневник</small></article></div>
+      <article class="panel history-panel"><div class="panel-title"><div><div class="eyebrow">RECENT CHECK-INS</div><h3>История самочувствия</h3></div><button class="text-btn" id="clearHistory">Очистить историю</button></div><div id="historyList" class="history-list"><div class="empty-state">Пока нет записей. Сделай первую отметку на главной.</div></div></article>
+    </section>
+    <footer class="footer"><span>FIT MASTER <b>•</b> VERSION 0.1</span><span>MADE FOR CONSISTENCY</span></footer>
+  </main>
+  <nav class="mobile-nav"><button class="active" data-view="home"><span>◈</span>Обзор</button><button data-view="plan"><span>▦</span>План</button><button data-view="library"><span>◉</span>Библиотека</button><button data-view="progress"><span>⌁</span>Динамика</button></nav>
+</div>
+<div class="modal-backdrop" id="modal"><div class="modal"><button class="modal-close" id="closeModal">×</button><div class="eyebrow">ПЕРЕД НАСТРОЙКОЙ ТРЕНИРОВОК</div><h2>Консультация специалиста</h2><p>Подтверди, что врач или физиотерапевт оценил симптомы, включая боль с распространением в ногу, и дал рекомендации по допустимой физической нагрузке.</p><label class="confirm-check"><input type="checkbox" id="confirmConsult"> Я прошёл(ла) консультацию и получил(а) индивидуальные рекомендации.</label><button class="primary-btn full" id="confirmSave" disabled>Сохранить отметку</button><small>Эта отметка не заменяет медицинские рекомендации и сама по себе не разблокирует упражнения.</small></div></div>
+<script src="app.js"></script>
+</body></html>
