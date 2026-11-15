@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const titles={home:'Обзор',plan:'Моя программа',library:'Библиотека',machines:'Тренажёры',progress:'Динамика'};
+const titles={plan:'Тренировка',library:'Упражнения',machines:'Тренажёры',progress:'Прогресс'};
 function showView(name){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));$('#pageTitle').textContent=titles[name];if(name==='progress')renderHistory();if(name==='machines')renderMachines();window.scrollTo({top:0,behavior:'smooth'});}
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
 const date=new Date();$('#todayLabel').textContent=date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();$('#checkDate').textContent=date.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).toUpperCase();
