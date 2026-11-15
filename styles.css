@@ -40,3 +40,33 @@
 .modal-open{overflow:hidden}
 @media(max-width:1050px){.library-tools{grid-template-columns:1fr 1fr}.library-tools input{grid-column:1/-1}}
 @media(max-width:700px){.library-tools{grid-template-columns:1fr}.library-tools input{grid-column:auto}.library-summary{font-size:9px}.exercise-detail{padding:23px 18px;max-height:90vh}.detail-hero{grid-template-columns:1fr 88px;gap:10px}.detail-anatomy{height:120px}.detail-anatomy .anatomy-svg{width:82px;height:112px}.detail-columns{grid-template-columns:1fr;gap:8px}.v3-card p{min-height:0}}
+
+/* FIT MASTER v0.4 — visual movement lab and workout builder */
+.library-extras{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 22px}
+.library-extras .panel{padding:18px;min-width:0}
+.map-badge,.builder-count{font-size:9px;letter-spacing:1px;color:var(--lime);border:1px solid #465638;border-radius:30px;padding:6px 9px}
+.map-switch{display:flex;gap:6px;margin:12px 0}
+.map-switch button{background:#1b2837;border:1px solid #35475b;color:#aebdcd;border-radius:9px;padding:7px 14px;font-size:10px}
+.map-switch button.active{background:#c8f36a;color:#17210e;border-color:#c8f36a;font-weight:800}
+.map-stage{height:205px;border-radius:14px;background:radial-gradient(ellipse at 50% 55%,#344b5f,#111b29 70%);display:grid;place-items:center;overflow:hidden;position:relative}
+.map-stage .anatomy-svg{position:static;width:140px;height:190px;filter:drop-shadow(0 8px 16px #0008)}
+.map-stage::after{content:'SELECTED MUSCLE GROUPS';position:absolute;bottom:10px;left:12px;font-size:8px;letter-spacing:1.4px;color:#9eb0c1}
+.anatomy-explorer>p,.workout-builder>p{font-size:10px;line-height:1.6;color:#9eacbd;margin:10px 0 0}
+.builder-list{display:grid;gap:7px;margin:12px 0;max-height:190px;overflow:auto}
+.builder-row{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#1a2735;border:1px solid #34465a;border-radius:10px;padding:9px 10px;font-size:10px;color:#e4edf6}
+.builder-row small{display:block;color:#8ea0b3;margin-top:3px}.builder-row button{border:0;background:transparent;color:#f19b8c;font-size:17px;padding:2px 6px}
+.builder-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}.builder-actions .primary-btn{padding:10px 12px;font-size:10px}
+.detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.detail-actions button{border:1px solid #43566b;background:#1b2938;color:#dce7f2;border-radius:10px;padding:10px 13px;font-size:10px;font-weight:800}
+.detail-actions button.primary-action{background:var(--lime);border-color:var(--lime);color:#15200e}
+.movement-lab{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:16px 0;padding:14px;border:1px solid #34465a;border-radius:15px;background:linear-gradient(130deg,#182635,#111a26)}
+.movement-scene{min-height:165px;display:grid;place-items:center;position:relative;overflow:hidden;border-radius:11px;background:radial-gradient(ellipse,#334b60,#111a26 70%)}
+.movement-scene svg{width:100%;max-width:230px;height:155px;overflow:visible}
+.movement-scene .limb{stroke:#c8f36a;stroke-width:7;stroke-linecap:round;fill:none;transform-box:fill-box;transform-origin:center}
+.movement-scene .bodyline{stroke:#dce8f2;stroke-width:8;stroke-linecap:round;fill:none}
+.movement-scene .joint{fill:#dce8f2}.movement-scene .motion-arm{animation:arm-cycle 2.8s ease-in-out infinite alternate}.movement-scene .motion-leg{animation:leg-cycle 2.8s ease-in-out infinite alternate}.movement-scene .motion-pull{animation:pull-cycle 2.8s ease-in-out infinite alternate}
+@keyframes arm-cycle{from{transform:rotate(-12deg)}to{transform:rotate(23deg)}}@keyframes leg-cycle{from{transform:rotate(-8deg)}to{transform:rotate(12deg)}}@keyframes pull-cycle{from{transform:translateX(-8px)}to{transform:translateX(8px)}}
+.movement-notes{align-self:center}.movement-notes b{font-size:11px}.movement-notes p{font-size:10px;color:#aab8c8;line-height:1.6;margin:7px 0}.motion-key{font-size:8px;color:var(--lime);letter-spacing:1px;text-transform:uppercase}
+@media(max-width:760px){.library-extras{grid-template-columns:1fr}.movement-lab{grid-template-columns:1fr}.movement-scene{min-height:145px}.map-stage{height:185px}}
+.favorite-mark{position:absolute;right:12px;top:12px;z-index:4;color:var(--lime);font-size:14px;font-weight:900;text-shadow:0 2px 8px #0009}
+#favOnly{border:1px solid #3c4d60;border-radius:20px;padding:7px 12px;color:#c8f36a}
