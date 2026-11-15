@@ -1,7 +1,7 @@
 {
   "name": "FIT MASTER — зал и бассейн",
   "short_name": "FIT MASTER",
-  "description": "FIT MASTER v0.5 — офлайн-конструктор тренировок, дневник нагрузки и прогресса для зала и бассейна",
+  "description": "FIT MASTER v0.6 — офлайн-конструктор тренировок, дневник нагрузки и прогресса для зала и бассейна",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
