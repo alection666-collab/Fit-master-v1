@@ -1,4 +1,4 @@
-const CACHE='fit-master-v06';
+const CACHE='fit-master-v07';
 const FILES=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg','./assets/chest-supported-row.svg','./assets/leg-extension.svg','./assets/arm-machine.svg'];
 const PHOTO_HOSTS=['upload.wikimedia.org','thumb.wikimedia.org'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
