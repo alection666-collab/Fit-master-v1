@@ -1,155 +1,77 @@
-const $ = (s, root=document) => root.querySelector(s);
-const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-const CHECKINS_KEY = 'fitmaster_checkins_v1';
-const FAVORITES_KEY = 'fitmaster_favorites_v1';
-const EXERCISES = window.FIT_MASTER_EXERCISES;
-const TITLES = {catalog:'Упражнения',favorites:'Избранное',journal:'Самочувствие'};
-let currentView = 'catalog';
-let activePlace = 'all';
-let deferredInstallPrompt = null;
-let lastFocusedElement = null;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const titles={plan:'Тренировка',library:'Упражнения',machines:'Тренажёры',progress:'Прогресс'};
+function showView(name){$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));$('#pageTitle').textContent=titles[name]||'FIT MASTER';if(name==='progress'){renderHistory();renderStrengthProgress();}window.scrollTo({top:0,behavior:'smooth'});}
+$$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+const date=new Date();$('#todayLabel').textContent=date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();$('#checkDate').textContent=date.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).toUpperCase();
+$('#painRange').addEventListener('input',e=>$('#painValue').textContent=`${e.target.value} / 10`);
+const STORE='fitmaster_checkins_v1', WORKOUTS='fitmaster_workouts_v1', FAVS='fitmaster_favorites_v1', BUILDER='fitmaster_builder_v1';const read=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch{return []}},write=x=>localStorage.setItem(STORE,JSON.stringify(x));
+$('#saveCheck').addEventListener('click',()=>{const list=read();list.unshift({date:new Date().toISOString(),pain:+$('#painRange').value,feeling:$('#feeling').value});write(list.slice(0,100));$('#saveNote').textContent='✓ Запись сохранена на этом устройстве';});
+const exercises=[
+{id:'chest-row',name:'Горизонтальная тяга с упором грудью',cat:'gym',muscle:'Спина',secondary:'Ромбовидные, средняя трапеция, задняя дельта',equipment:'Тренажёр с грудной подушкой',level:'Начальный / средний',icon:'↔',desc:'Тяга рукоятей к корпусу при устойчивой опоре грудью. Подходит как кандидат для тренировки верхней части спины, если положение не вызывает симптомов.',steps:['Настрой сиденье так, чтобы рукояти были на уровне нижней части груди.','Прижми грудь к подушке, стопы поставь устойчиво.','Плавно сведи лопатки и потяни рукояти к себе.','Верни рукояти медленно, не округляя и не переразгибая поясницу.'],setup:'Начни с минимального сопротивления и короткой комфортной амплитуды. Не работай до отказа.',caution:'Не используй вариант без грудной опоры. Прекрати при боли в пояснице или усилении симптомов в ноге.',focus:'Верх спины',visual:'back'},
+{id:'reverse-fly',name:'Обратная «бабочка» с опорой грудью',cat:'gym',muscle:'Спина',secondary:'Задняя дельта, ромбовидные',equipment:'Тренажёр reverse pec deck с грудной опорой',level:'Начальный',icon:'✣',desc:'Разведение рук в стороны с опорой грудью. Нагрузка преимущественно на заднюю часть плеч и верх спины.',steps:['Отрегулируй сиденье и рукояти под комфортную высоту плеч.','Прижми грудь к опоре, сохраняя нейтральное положение корпуса.','Разведи руки без рывка, не поднимай плечи к ушам.','Медленно вернись в исходное положение.'],setup:'Очень лёгкий вес, плавный темп, без попытки увеличить амплитуду любой ценой.',caution:'Не раскачивайся и не прогибайся в пояснице. Если опора не позволяет сохранять удобное положение, не выполняй.',focus:'Верх спины и задняя дельта',visual:'back'},
+{id:'lat-pullover',name:'Пуловер в тренажёре с опорой спины',cat:'gym',muscle:'Спина',secondary:'Широчайшие мышцы',equipment:'Пуловер-машина со спинкой',level:'Средний',icon:'⌁',desc:'Изолирующее движение для широчайших. Включать только при наличии надёжной спинки и комфортном положении позвоночника.',steps:['Сядь глубоко, прижми спину к спинке.','Возьми рукояти нейтральным хватом.','Опускай рычаги в комфортной амплитуде, не прогибая поясницу.','Контролируемо вернись в исходное положение.'],setup:'Минимальное сопротивление. Не допускай чрезмерного растяжения плеч и рёбер.',caution:'Если движение требует прогиба или отрыва спины от опоры — исключи его.',focus:'Широчайшие',visual:'back'},
+{id:'biceps',name:'Сгибание рук на бицепс сидя с опорой',cat:'gym',muscle:'Руки',secondary:'Бицепс, плечевая мышца',equipment:'Бицепс-машина или скамья с поддержкой спины',level:'Начальный',icon:'💪',desc:'Изолированная работа сгибателей локтя в устойчивом положении сидя.',steps:['Устройся так, чтобы спина имела опору, плечи были расслаблены.','Возьми рукояти, локти расположи удобно.','Согни руки без рывка и раскачивания корпуса.','Медленно опусти рукояти, сохраняя контроль.'],setup:'Лёгкое сопротивление, 8–12 повторений как ориентир, если это согласовано и переносится комфортно.',caution:'Не помогай движению корпусом и не задерживай дыхание.',focus:'Передняя поверхность плеча',visual:'arms'},
+{id:'triceps',name:'Разгибание рук на трицепс сидя с опорой',cat:'gym',muscle:'Руки',secondary:'Трицепс',equipment:'Трицепс-машина со спинкой',level:'Начальный',icon:'⇣',desc:'Изолирующая работа трицепса с устойчивой поддержкой корпуса.',steps:['Сядь со спиной на спинке, плечи опусти.','Возьми рукояти и расположи локти согласно конструкции тренажёра.','Плавно разогни руки без рывка.','Вернись в исходное положение под контролем.'],setup:'Выбери небольшой вес и не стремись к максимальному разгибанию.',caution:'Не прогибайся в пояснице и не отталкивайся корпусом.',focus:'Задняя поверхность плеча',visual:'arms'},
+{id:'leg-extension',name:'Разгибание ног сидя',cat:'gym',muscle:'Ноги',secondary:'Квадрицепс',equipment:'Тренажёр разгибания ног со спинкой',level:'Начальный',icon:'⌁',desc:'Изолированная работа передней поверхности бедра. Требует удобной настройки спинки и положения таза.',steps:['Настрой спинку и валик так, чтобы ось тренажёра совпадала с коленом.','Сохраняй таз и спину в контакте с опорой.','Плавно разогни колени в комфортном диапазоне.','Медленно опусти валик без удара.'],setup:'Минимальный вес, не выпрямляй колени резко и не фиксируй их с усилием.',caution:'Если спинка заставляет таз подкручиваться или поясница болит — не выполняй.',focus:'Передняя поверхность бедра',visual:'legs'},
+{id:'leg-curl',name:'Сгибание ног сидя',cat:'gym',muscle:'Ноги',secondary:'Задняя поверхность бедра',equipment:'Сгибание ног сидя со спинкой',level:'Начальный',icon:'⌁',desc:'Изолирующее упражнение для задней поверхности бедра. Важна стабильная поддержка таза и спины.',steps:['Настрой валик над нижней частью голени, ось — на уровне колена.','Прижми таз и спину к спинке.','Согни ноги плавно, не отрывая таз.','Медленно вернись, не бросая вес.'],setup:'Начни с минимального сопротивления и комфортной амплитуды.',caution:'Не тянись корпусом и не меняй положение поясницы во время повторения.',focus:'Задняя поверхность бедра',visual:'legs'},
+{id:'hip-abduction',name:'Отведение бёдер сидя',cat:'gym',muscle:'Ноги',secondary:'Средняя и малая ягодичные',equipment:'Тренажёр отведения бёдер со спинкой',level:'Начальный',icon:'↗',desc:'Работа мышц наружной поверхности таза в положении сидя. Переносимость индивидуальна.',steps:['Сядь глубоко, спина опирается на спинку.','Размести бёдра на мягких упорах.','Медленно разведи колени в комфортной амплитуде.','Вернись без рывка и не своди колени с ударом.'],setup:'Лёгкое сопротивление, небольшая амплитуда в начале.',caution:'Не наклоняйся вперёд и не усиливай амплитуду через дискомфорт в пояснице или ноге.',focus:'Боковая поверхность таза',visual:'legs'},
+{id:'chest-press',name:'Жим от груди в тренажёре со спинкой',cat:'gym',muscle:'Грудь',secondary:'Трицепс, передняя дельта',equipment:'Грудной жим со спинкой',level:'Начальный',icon:'⇢',desc:'Жим сидя с поддержкой спины. Включать только если спинка и положение рук не провоцируют симптомы.',steps:['Отрегулируй сиденье, рукояти на комфортной высоте груди.','Прижми спину к спинке, стопы устойчиво на полу.','Выжми рукояти плавно, не прогибаясь.','Вернись медленно, не уходя в глубокое растяжение.'],setup:'Минимальный вес, контролируемая амплитуда.',caution:'Не отрывай поясницу от спинки и не используй тяжёлые веса.',focus:'Грудные мышцы',visual:'front'},
+{id:'lateral-raise',name:'Подъём рук в стороны в тренажёре',cat:'gym',muscle:'Плечи',secondary:'Средняя дельта',equipment:'Тренажёр lateral raise со спинкой',level:'Начальный',icon:'↗',desc:'Изолированная работа средней дельты при поддержанном положении корпуса.',steps:['Сядь со спиной на опоре, плечи расслаблены.','Расположи локти под мягкими упорами.','Подними руки до комфортной высоты без рывка.','Опусти медленно, сохраняя корпус неподвижным.'],setup:'Лёгкий вес; не поднимай плечи к ушам.',caution:'Не компенсируй движение наклоном или прогибом поясницы.',focus:'Средняя дельта',visual:'front'},
+{id:'water-walk',name:'Ходьба в воде',cat:'pool',muscle:'Общая активность',secondary:'Ноги, ягодичные, мышцы рук при естественном движении',equipment:'Бассейн, комфортная глубина',level:'Лёгкий',icon:'♧',desc:'Спокойная ходьба в воде в устойчивом темпе. Это не лечебное назначение; глубина и скорость должны быть комфортны.',steps:['Выбери безопасную глубину, где уверенно стоишь.','Начни с нескольких спокойных шагов.','Сохраняй естественную осанку, не делай широких шагов.','Остановись и оцени реакцию спины и ноги.'],setup:'Короткий отрезок, рядом поручень или бортик. Не занимайся в одиночку, если есть риск потери равновесия.',caution:'Не продолжай при прострелах, нарастании боли, онемении или слабости. Не ныряй и не выполняй резкие повороты.',focus:'Общая активность',visual:'water'},
+{id:'water-arms',name:'Плавные движения руками в воде',cat:'pool',muscle:'Руки',secondary:'Плечи, грудные мышцы',equipment:'Бассейн, вода по комфортный уровень',level:'Лёгкий',icon:'≋',desc:'Небольшие контролируемые движения руками в воде при неподвижном комфортном положении корпуса.',steps:['Встань устойчиво рядом с бортиком.','Держи корпус без скручивания и наклонов.','Выполняй небольшие движения руками вперёд-назад.','Сделай паузу и оцени симптомы.'],setup:'Короткие интервалы, без сопротивления инвентаря.',caution:'Не используй лопатки или утяжелители на старте. Прекрати при любых нарастающих симптомах.',focus:'Плечевой пояс',visual:'water'},
+{id:'easy-walk',name:'Спокойная ходьба по ровной поверхности',cat:'recovery',muscle:'Общая активность',secondary:'Ноги и сердечно-сосудистая система',equipment:'Удобная обувь',level:'По переносимости',icon:'↗',desc:'Неспешная ходьба по ровному маршруту. Продолжительность подбирается по индивидуальной реакции.',steps:['Выбери ровную поверхность и удобную обувь.','Начни с короткого комфортного отрезка.','Сохраняй естественный шаг, не ускоряйся через боль.','При ухудшении симптомов остановись.'],setup:'Не гонись за дистанцией. Увеличивай продолжительность только при устойчивой хорошей переносимости.',caution:'Если боль начинает сильнее отдавать в ногу, появляется онемение или слабость — прекрати активность и обратись за медицинской оценкой.',focus:'Общая активность',visual:'walk'}
+];
+const muscleClass=m=>({'Спина':'back','Ноги':'legs','Руки':'arms','Грудь':'front','Плечи':'front','Общая активность':'water'}[m]||'front');
+function bodySvg(type){const hot=type==='back'?'<path d="M44 31 Q50 25 56 31 L60 55 L55 78 L50 70 L45 78 L40 55Z"/>':type==='legs'?'<path d="M39 70 L49 70 L47 105 L42 105Z M51 70 L61 70 L58 105 L53 105Z"/>':type==='arms'?'<path d="M31 35 L23 59 L28 62 L39 43Z M69 35 L77 59 L72 62 L61 43Z"/>':type==='water'?'<path d="M20 68 Q35 58 50 68 T80 68 L80 80 Q65 70 50 80 T20 80Z"/>':'<path d="M39 31 Q50 25 61 31 L60 54 L50 60 L40 54Z"/>';
+return `<svg class="anatomy-svg" viewBox="0 0 100 116" role="img" aria-label="Схематичная карта целевой зоны"><g fill="#263548" stroke="#53647a" stroke-width="1.3"><circle cx="50" cy="13" r="8"/><path d="M39 25 Q50 21 61 25 L66 58 L60 72 L58 110 L51 110 L50 76 L49 110 L42 110 L40 72 L34 58Z"/><path d="M37 28 L22 61 L27 64 L43 40 M63 28 L78 61 L73 64 L57 40"/></g><g fill="#c8f36a" opacity=".92">${hot}</g><path d="M50 22V108" stroke="#8292a7" stroke-dasharray="2 3" opacity=".4"/></svg>`;}
+let favoritesOnly=false;const getFavs=()=>{try{return JSON.parse(localStorage.getItem(FAVS)||'[]')}catch{return []}};const getBuilder=()=>{try{return JSON.parse(localStorage.getItem(BUILDER)||'[]')}catch{return []}};const saveBuilder=x=>localStorage.setItem(BUILDER,JSON.stringify(x));
+function renderLibrary(){const q=$('#searchExercises').value.toLowerCase().trim(),cat=$('#categoryFilter').value,muscle=$('#muscleFilter').value,favs=getFavs();const filtered=exercises.filter(x=>(!favoritesOnly||favs.includes(x.id))&&(cat==='all'||x.cat===cat)&&(muscle==='all'||x.muscle===muscle)&&(x.name+' '+x.desc+' '+x.muscle+' '+x.secondary+' '+x.equipment).toLowerCase().includes(q));$('#exerciseCount').textContent=filtered.length;$('#libraryGrid').innerHTML=filtered.length?filtered.map(x=>`<button class="exercise-card v3-card" data-exercise="${x.id}" aria-label="Открыть ${x.name}"><div class="exercise-visual"><span class="favorite-mark">${favs.includes(x.id)?'★':'＋'}</span><div class="exercise-top"><span class="exercise-symbol">${x.icon}</span><span class="eyebrow">${x.cat==='gym'?'ЗАЛ':x.cat==='pool'?'БАССЕЙН':'АКТИВНОСТЬ'}</span></div>${bodySvg(muscleClass(x.muscle))}<span class="visual-caption">${x.focus}</span></div><div class="exercise-card-body"><div class="card-kicker">${x.muscle.toUpperCase()} · ${x.level.toUpperCase()}</div><h3>${x.name}</h3><p>${x.desc}</p><div class="exercise-meta"><span>${x.equipment}</span></div><span class="card-open">ТЕХНИКА И НАСТРОЙКА <b>↗</b></span></div></button>`).join(''):'<div class="empty-state">Ничего не найдено. Измени запрос или фильтр.</div>';$$('[data-exercise]').forEach(b=>b.addEventListener('click',()=>openExercise(b.dataset.exercise)));}
+$('#searchExercises').addEventListener('input',renderLibrary);$('#categoryFilter').addEventListener('change',renderLibrary);$('#muscleFilter').addEventListener('change',renderLibrary);renderLibrary();renderBuilder();renderMap('front');
+const machinePhotoByExercise={'chest-row':'assets/machines/chest-supported-row.jpg','leg-extension':'assets/machines/leg-extension.jpg'};
+function machinePhotoMarkup(ex){const src=machinePhotoByExercise[ex.id];return src?`<figure class="equipment-detail-photo"><img src="${src}" alt="Иллюстрация тренажёра для упражнения ${ex.name}" loading="lazy"><figcaption>Иллюстрация оборудования. Конструкция и настройки в конкретном зале могут отличаться.</figcaption></figure>`:'';}
+function movementSvg(type){const arm=type==='arms'||type==='front',leg=type==='legs'||type==='walk',water=type==='water';return `<svg viewBox="0 0 220 150" role="img" aria-label="Условная анимация техники упражнения"><path class="bodyline" d="M108 42 L108 91"/><circle class="joint" cx="108" cy="25" r="11"/><path class="bodyline" d="M108 91 L91 132 M108 91 L126 132"/><path class="limb ${arm?'motion-arm':'motion-pull'}" d="M108 52 L76 72 L58 96"/><path class="limb ${arm?'motion-arm':'motion-pull'}" d="M108 52 L140 72 L158 96"/><path class="limb ${leg?'motion-leg':''}" d="M91 132 L80 142 M126 132 L139 142"/><path d="M30 145H190" stroke="#64788c" stroke-width="2" stroke-dasharray="4 5"/><circle class="joint" cx="76" cy="72" r="4"/><circle class="joint" cx="140" cy="72" r="4"/>${water?'<path d="M22 112 Q42 102 62 112 T102 112 T142 112 T182 112" stroke="#6cc8ef" stroke-width="3" fill="none"/>':''}</svg>`}
+function renderBuilder(){const list=getBuilder();$('#builderCount').textContent=list.length;$('#builderList').innerHTML=list.length?list.map(id=>{const x=exercises.find(e=>e.id===id);return x?`<div class="builder-row"><div>${x.name}<small>${x.muscle} · ${x.cat==='pool'?'Бассейн':x.cat==='gym'?'Зал':'Активность'}</small></div><button data-remove-workout="${id}" aria-label="Убрать">×</button></div>`:''}).join(''):'<div class="empty-state">Пока пусто — открой упражнение и нажми «Добавить».</div>';$$('[data-remove-workout]').forEach(b=>b.addEventListener('click',()=>{saveBuilder(getBuilder().filter(id=>id!==b.dataset.removeWorkout));renderBuilder();}));}
+function renderMap(side='front'){const back=side==='back';const src=back?'assets/anatomy/anatomy-back.svg':'assets/anatomy/anatomy-front.svg';const alt=back?'Условная анатомическая схема мышц задней поверхности':'Условная анатомическая схема мышц передней поверхности';$('#mapStage').innerHTML=`<img class="anatomy-plate" src="${src}" alt="${alt}" loading="lazy">`;$('#mapCaption').textContent=back?'Сзади: трапеции, широчайшие, трицепсы, ягодичные, задняя поверхность бедра и икры.':'Спереди: дельтовидные, грудные, бицепсы, квадрицепсы и икры. Схема учебная, не медицинский атлас.';$$('[data-map]').forEach(b=>b.classList.toggle('active',b.dataset.map===side));}
+$('#favOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;$('#favOnly').textContent=favoritesOnly?'★ Показать все':'☆ Избранное';renderLibrary();});
+$$('[data-map]').forEach(b=>b.addEventListener('click',()=>renderMap(b.dataset.map)));
+$('#clearWorkout').addEventListener('click',()=>{saveBuilder([]);renderBuilder();$('#builderNote').textContent='Список очищен.';});
+$('#saveWorkout').addEventListener('click',()=>{$('#builderNote').textContent=getBuilder().length?'✓ План сохранён на этом устройстве.':'Сначала добавь упражнения из библиотеки.';});
+function openExercise(id){const x=exercises.find(e=>e.id===id);if(!x)return;$('#detailContent').innerHTML=`<div class="detail-hero"><div><div class="eyebrow">${x.cat==='gym'?'ТРЕНАЖЁРНЫЙ ЗАЛ':x.cat==='pool'?'БАССЕЙН':'ВОССТАНОВЛЕНИЕ'} · ${x.muscle.toUpperCase()}</div><h2 id="detailTitle">${x.name}</h2><p>${x.desc}</p></div><div class="detail-anatomy">${bodySvg(muscleClass(x.muscle))}</div></div><div class="detail-actions"><button class="primary-action" id="addToWorkout">＋ Добавить в тренировку</button><button id="toggleFavorite">${getFavs().includes(x.id)?'★ В избранном':'☆ В избранное'}</button></div><div class="movement-lab"><div class="movement-scene">${movementSvg(x.visual)}</div><div class="movement-notes"><div class="motion-key">ANIMATED TECHNIQUE GUIDE</div><b>Схема движения</b><p>Условная анимация показывает направление движения, а не заменяет очную инструкцию тренера или специалиста. Выполняй только комфортную амплитуду.</p></div></div><div class="detail-chips"><span>Основная зона: ${x.muscle}</span><span>Уровень: ${x.level}</span></div>${machinePhotoMarkup(x)}<div class="detail-columns"><section><div class="eyebrow">ТЕХНИКА ВЫПОЛНЕНИЯ</div><ol class="step-list">${x.steps.map(s=>`<li>${s}</li>`).join('')}</ol></section><section><div class="eyebrow">МЫШЦЫ И ОБОРУДОВАНИЕ</div><p><b>Дополнительно работают</b><br>${x.secondary}</p><p><b>Оборудование</b><br>${x.equipment}</p><p><b>Настройка</b><br>${x.setup}</p></section></div><div class="detail-warning"><b>Ограничения и контроль</b><p>${x.caution}</p><p>При боли с распространением в ногу, онемении или слабости прекрати упражнение. Переносимость индивидуальна; согласуй новую нагрузку со специалистом.</p></div>`;$('#addToWorkout').addEventListener('click',()=>{const list=getBuilder();if(!list.includes(x.id)){list.push(x.id);saveBuilder(list);renderBuilder();}if(typeof program!=='undefined'){const dayList=program.plans[selectedDay]||(program.plans[selectedDay]=[]);if(!dayList.includes(x.id)){dayList.push(x.id);saveProgramData(program);renderProgram();}}$('#addToWorkout').textContent='✓ Добавлено в конструктор';});$('#toggleFavorite').addEventListener('click',()=>{let f=getFavs();f=f.includes(x.id)?f.filter(id=>id!==x.id):[...f,x.id];localStorage.setItem(FAVS,JSON.stringify(f));$('#toggleFavorite').textContent=f.includes(x.id)?'★ В избранном':'☆ В избранное';renderLibrary();});$('#exerciseModal').classList.add('open');document.body.classList.add('modal-open');$('#closeExercise').focus();}
+function closeExercise(){$('#exerciseModal').classList.remove('open');document.body.classList.remove('modal-open');}$('#closeExercise').addEventListener('click',closeExercise);$('#exerciseModal').addEventListener('click',e=>{if(e.target.id==='exerciseModal')closeExercise();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExercise();});
+function renderHistory(){const list=read();$('#logCount').textContent=list.length;$('#avgPain').textContent=list.length?(list.reduce((a,x)=>a+x.pain,0)/list.length).toFixed(1)+'/10':'—';$('#lastLog').textContent=list.length?new Date(list[0].date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):'—';$('#historyList').innerHTML=list.length?list.slice(0,20).map(x=>`<div class="history-row"><div><b>${new Date(x.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}</b><br><small>${x.feeling}</small></div><span class="pain-badge">Боль: ${x.pain}/10</span></div>`).join(''):'<div class="empty-state">Пока нет записей. Сделай первую отметку на экране «Тренировка».</div>';}
+$('#clearHistory').addEventListener('click',()=>{if(confirm('Удалить все записи самочувствия с этого устройства?')){localStorage.removeItem(STORE);renderHistory();}});
 
-function safeRead(key, fallback) {
-  try { const value = JSON.parse(localStorage.getItem(key) || 'null'); return value ?? fallback; }
-  catch { return fallback; }
-}
-function safeWrite(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
-  catch { return false; }
-}
-function getCheckins(){ const value=safeRead(CHECKINS_KEY,[]); return Array.isArray(value)?value:[]; }
-function getFavorites(){ const value=safeRead(FAVORITES_KEY,[]); return Array.isArray(value)?value:[]; }
-function setFavorites(ids){ safeWrite(FAVORITES_KEY,ids); updateFavoriteCounters(); }
-function updateFavoriteCounters(){ const count=getFavorites().length; $('#favCount').textContent=count; $('#mobileFavCount').textContent=count; }
-function formatDate(date, options={day:'numeric',month:'short'}){ return new Date(date).toLocaleDateString('ru-RU',options); }
-function showView(name){
-  if(!TITLES[name]) return;
-  currentView=name;
-  $$('.view').forEach(view=>view.classList.toggle('active',view.id===`view-${name}`));
-  $$('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view===name));
-  $('#pageTitle').textContent=TITLES[name];
-  if(name==='favorites') renderFavorites();
-  if(name==='journal') renderHistory();
-  window.scrollTo({top:0,behavior:'smooth'});
-  history.replaceState(null,'',`#${name}`);
-}
-$$('[data-view]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
-$$('[data-go]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.go)));
+// FIT MASTER v0.5 — multi-day programs, training log, rest timer and local progress.
+const PROGRAM_KEY='fitmaster_program_v5', SESSIONS_KEY='fitmaster_sessions_v5';
+const defaultProgram={days:3,plans:{1:['chest-row','reverse-fly','biceps'],2:['water-walk','water-arms'],3:['leg-extension','leg-curl','triceps']}};
+const cloneDefaultProgram=()=>JSON.parse(JSON.stringify(defaultProgram));
+function loadProgram(){try{const saved=JSON.parse(localStorage.getItem(PROGRAM_KEY)||'null')||{};const plans={};for(let day=1;day<=3;day++){const source=saved.plans&&Array.isArray(saved.plans[day])?saved.plans[day]:defaultProgram.plans[day];plans[day]=source.filter(id=>exercises.some(ex=>ex.id===id));}return {days:Number(saved.days)===2?2:3,plans};}catch{return cloneDefaultProgram();}}
+function saveProgramData(v){try{localStorage.setItem(PROGRAM_KEY,JSON.stringify(v));return true;}catch{return false;}}
+function loadSessions(){try{const saved=JSON.parse(localStorage.getItem(SESSIONS_KEY)||'[]');return Array.isArray(saved)?saved.filter(x=>x&&Array.isArray(x.entries)):[];}catch{return [];}}
+const timerPresets={set30:30,set45:45,set60:60,rest60:60,rest90:90,rest120:120};
+let program=loadProgram(), selectedDay=1, timerInterval=null, timerLeft=90;
+const pDays=$('#programDays'), pDay=$('#programDay'), timerMode=$('#timerMode');
+function syncDayOptions(){const n=+pDays.value;pDay.querySelectorAll('option').forEach(o=>o.hidden=+o.value>n);if(selectedDay>n)selectedDay=n;pDay.value=String(selectedDay);}
+function renderProgram(){pDays.value=String(program.days||3);syncDayOptions();const ids=program.plans[selectedDay]||[];const names={1:'Спина и руки',2:'Бассейн и активность',3:'Ноги и руки'};$('#programDayTitle').textContent=`День ${selectedDay} · ${names[selectedDay]||'Своя тренировка'}`;$('#programDayList').innerHTML=ids.length?ids.map(id=>{const e=exercises.find(x=>x.id===id);return e?`<div class="program-ex-row"><div>${e.name}<small>${e.muscle} · ${e.equipment}</small></div><button data-program-remove="${id}" aria-label="Удалить упражнение">×</button></div>`:''}).join(''):'<div class="empty-state">В этом дне пока нет упражнений.</div>';const select=$('#programExerciseSelect');select.innerHTML=exercises.map(e=>`<option value="${e.id}">${e.name} — ${e.muscle}</option>`).join('');$$('[data-program-remove]').forEach(b=>b.addEventListener('click',()=>{program.plans[selectedDay]=(program.plans[selectedDay]||[]).filter(x=>x!==b.dataset.programRemove);saveProgramData(program);renderProgram();}));renderSessionEditor();}
+pDays.addEventListener('change',()=>{program.days=+pDays.value;syncDayOptions();saveProgramData(program);renderProgram();});pDay.addEventListener('change',()=>{selectedDay=+pDay.value;renderProgram();});
+$('#addProgramExercise').addEventListener('click',()=>{const id=$('#programExerciseSelect').value;const a=program.plans[selectedDay]||(program.plans[selectedDay]=[]);if(!a.includes(id))a.push(id);saveProgramData(program);renderProgram();});
+$('#saveProgram').addEventListener('click',()=>{program.days=+pDays.value;$('#programNote').textContent=saveProgramData(program)?'✓ Программа сохранена на этом устройстве.':'Не удалось сохранить данные: проверь свободное место браузера.';});
+$('#resetProgram').addEventListener('click',()=>{if(confirm('Вернуть пример программы FIT MASTER?')){program=cloneDefaultProgram();selectedDay=1;saveProgramData(program);renderProgram();$('#programNote').textContent='Пример программы восстановлен.';}});
+function renderSessionEditor(){const ids=program.plans[selectedDay]||[];$('#sessionEditor').innerHTML=ids.length?ids.map(id=>{const e=exercises.find(x=>x.id===id);return e?`<div class="session-exercise" data-session-ex="${e.id}"><h4>${e.name} <span class="muted">· ${e.muscle}</span></h4><div class="session-fields"><label>Подходы<input type="number" min="1" max="10" value="3" data-field="sets"></label><label>Повторения<input type="number" min="1" max="50" value="10" data-field="reps"></label><label>Вес, кг<input type="number" min="0" max="500" step="0.5" value="0" data-field="weight"></label></div></div>`:''}).join(''):'<div class="empty-state">Добавь упражнения в выбранный день программы, чтобы записать тренировку.</div>';}
+$('#saveSession').addEventListener('click',()=>{const rows=$$('.session-exercise');if(!rows.length){$('#sessionNote').textContent='Сначала добавь упражнения в выбранный день.';return;}const entries=rows.map(row=>({exerciseId:row.dataset.sessionEx,sets:+row.querySelector('[data-field="sets"]').value,reps:+row.querySelector('[data-field="reps"]').value,weight:+row.querySelector('[data-field="weight"]').value})).filter(x=>x.sets>0&&x.reps>0);if(!entries.length){$('#sessionNote').textContent='Проверь количество подходов и повторений.';return;}const logs=loadSessions();logs.unshift({date:new Date().toISOString(),day:selectedDay,entries});localStorage.setItem(SESSIONS_KEY,JSON.stringify(logs.slice(0,500)));$('#sessionNote').textContent='✓ Тренировка записана. Данные сохранены локально.';renderStrengthProgress();});
+function formatTimer(){const m=Math.floor(timerLeft/60),s=timerLeft%60;$('#timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function selectedTimerSeconds(){return timerPresets[timerMode.value]||90;}
+function resetTimer(){clearInterval(timerInterval);timerInterval=null;timerLeft=selectedTimerSeconds();formatTimer();$('#timerStatus').textContent='Готов к запуску';}
+$('#startRestTimer').addEventListener('click',()=>{$('#restTimer').hidden=false;resetTimer();});
+timerMode.addEventListener('change',resetTimer);
+$('#timerStart').addEventListener('click',()=>{if(timerInterval)return;if(timerLeft<=0)timerLeft=selectedTimerSeconds();$('#timerStatus').textContent='Идёт отсчёт';timerInterval=setInterval(()=>{timerLeft=Math.max(0,timerLeft-1);formatTimer();if(timerLeft===0){clearInterval(timerInterval);timerInterval=null;$('#timerStatus').textContent='Время завершено';if('vibrate'in navigator)navigator.vibrate([180,100,180]);}},1000);});
+$('#timerPause').addEventListener('click',()=>{clearInterval(timerInterval);timerInterval=null;$('#timerStatus').textContent='Пауза';});
+$('#timerReset').addEventListener('click',resetTimer);
+function renderSessionHistory(){const host=$('#sessionHistoryList');if(!host)return;const logs=loadSessions();host.innerHTML=logs.length?logs.slice(0,15).map(log=>{const date=new Date(log.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});const totalSets=log.entries.reduce((sum,e)=>sum+(Number(e.sets)||0),0);const details=log.entries.map(entry=>{const ex=exercises.find(x=>x.id===entry.exerciseId);return ex?`${ex.name}: ${entry.sets}×${entry.reps}${entry.weight>0?` · ${entry.weight} кг`:''}`:''}).filter(Boolean).join(' · ');return `<div class="session-history-row"><div><b>${date} · День ${log.day}</b><small>${details}</small></div><span class="pain-badge">${totalSets} подх.</span></div>`}).join(''):'<div class="empty-state">Пока нет сохранённых тренировок.</div>';}
+$('#clearSessions').addEventListener('click',()=>{if(confirm('Удалить весь журнал тренировок с этого устройства?')){localStorage.removeItem(SESSIONS_KEY);renderStrengthProgress();}});
+function renderStrengthProgress(){const logs=loadSessions();$('#sessionCount').textContent=logs.length;$('#setCount').textContent=logs.reduce((n,l)=>n+l.entries.reduce((a,e)=>a+(Number(e.sets)||0),0),0);$('#lastSession').textContent=logs.length?new Date(logs[0].date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):'—';renderSessionHistory();drawProgressChart();}
+function drawProgressChart(){const canvas=$('#progressChart');if(!canvas)return;const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#111c29';ctx.fillRect(0,0,w,h);const selected=$('#progressMuscle').value;const logs=loadSessions().slice().reverse();const groups=new Map();logs.forEach(log=>log.entries.forEach(entry=>{const ex=exercises.find(x=>x.id===entry.exerciseId),weight=Number(entry.weight);if(!ex||!Number.isFinite(weight)||weight<=0||(selected!=='all'&&ex.muscle!==selected))return;if(!groups.has(ex.id))groups.set(ex.id,{name:ex.name,points:[]});groups.get(ex.id).points.push({date:new Date(log.date),weight});}));const series=[...groups.values()].filter(s=>s.points.length).slice(0,8);const legend=$('#chartLegend');ctx.strokeStyle='#34495e';ctx.lineWidth=1;for(let i=0;i<5;i++){const y=22+(h-66)*i/4;ctx.beginPath();ctx.moveTo(56,y);ctx.lineTo(w-20,y);ctx.stroke();}if(!series.length){ctx.fillStyle='#9aabba';ctx.font='16px sans-serif';ctx.fillText('Добавь запись с рабочим весом — здесь появится график',58,h/2);if(legend)legend.innerHTML='';return;}const all=series.flatMap(s=>s.points),minTime=Math.min(...all.map(p=>p.date.getTime())),maxTime=Math.max(...all.map(p=>p.date.getTime())),maxWeight=Math.max(1,...all.map(p=>p.weight))*1.15;const left=58,right=w-22,top=24,bottom=h-42,plotW=right-left,plotH=bottom-top;ctx.fillStyle='#a9b8c7';ctx.font='12px sans-serif';ctx.fillText('0 кг',10,bottom+4);ctx.fillText(`${maxWeight.toFixed(1)} кг`,7,top+4);ctx.fillText(new Date(minTime).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}),left,bottom+25);const endLabel=new Date(maxTime).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});ctx.fillText(endLabel,Math.max(left,right-ctx.measureText(endLabel).width),bottom+25);const palette=['#c8f36a','#69d9d0','#a08eff','#ffb66d','#7fb7f0','#f28da0','#c4d4e3','#d8a8ef'];series.forEach((s,index)=>{s.points.sort((a,b)=>a.date-b.date);const color=palette[index%palette.length];ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.5;ctx.beginPath();s.points.forEach((p,i)=>{const x=minTime===maxTime?left+plotW/2:left+(p.date.getTime()-minTime)/(maxTime-minTime)*plotW;const y=bottom-(p.weight/maxWeight)*plotH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();s.points.forEach(p=>{const x=minTime===maxTime?left+plotW/2:left+(p.date.getTime()-minTime)/(maxTime-minTime)*plotW;const y=bottom-(p.weight/maxWeight)*plotH;ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fill();});});if(legend)legend.innerHTML=series.map((s,i)=>`<span><i style="background:${palette[i%palette.length]}"></i>${s.name}</span>`).join('');}
+$('#progressMuscle').addEventListener('change',drawProgressChart);
+renderProgram();resetTimer();renderStrengthProgress();
 
-function cardMarkup(item){
-  const favorite=getFavorites().includes(item.id);
-  const placeLabel=item.place==='gym'?'ТРЕНАЖЁРНЫЙ ЗАЛ':item.place==='pool'?'БАССЕЙН':'ВОССТАНОВЛЕНИЕ';
-  const priorityClass=item.priority==='Основной фокус'?'priority-main':item.priority==='Дополнительно'?'priority-extra':'priority-soft';
-  return `<article class="exercise-card" data-id="${item.id}">
-    <button class="favorite-toggle ${favorite?'is-favorite':''}" data-favorite="${item.id}" aria-label="${favorite?'Убрать из избранного':'Добавить в избранное'}" aria-pressed="${favorite}">${favorite?'♥':'♡'}</button>
-    <a class="card-open" href="#exercise-${item.id}" data-open="${item.id}" aria-label="Открыть упражнение: ${item.name}">
-      <div class="card-art"><img src="./${item.image}" alt="Схема: ${item.name}" loading="lazy"><span class="place-label">${placeLabel}</span></div>
-      <div class="card-body"><div class="card-kicker"><span>${item.groupLabel}</span><span class="priority-label ${priorityClass}">${item.priority}</span></div><h3>${item.name}</h3><p>${item.summary}</p>
-      <div class="card-muscles"><span>Основные мышцы</span><b>${item.primary}</b></div>
-      <div class="card-footer"><span>Подробнее о технике</span><span class="arrow">↗</span></div></div>
-    </a></article>`;
-}
-function matches(item, query, place, muscle){
-  const text=[item.name,item.groupLabel,item.primary,item.secondary,item.equipment,item.summary,item.keywords,item.priority].join(' ').toLocaleLowerCase('ru');
-  return (!query||text.includes(query))&&(place==='all'||item.place===place)&&(muscle==='all'||item.group===muscle);
-}
-function renderCatalog(){
-  const query=$('#searchExercises').value.trim().toLocaleLowerCase('ru');
-  const muscle=$('#muscleFilter').value;
-  const list=EXERCISES.filter(item=>matches(item,query,activePlace,muscle));
-  $('#libraryGrid').innerHTML=list.map(cardMarkup).join('');
-  $('#resultCount').textContent=list.length;
-  $('#emptyState').hidden=list.length!==0;
-  $('#clearSearch').hidden=!query;
-  bindCardActions($('#libraryGrid'));
-}
-function renderFavorites(){
-  const ids=getFavorites();
-  const list=ids.map(id=>EXERCISES.find(item=>item.id===id)).filter(Boolean);
-  $('#favoritesGrid').innerHTML=list.map(cardMarkup).join('');
-  $('#favoritesEmpty').hidden=list.length!==0;
-  bindCardActions($('#favoritesGrid'));
-}
-function bindCardActions(root){
-  $$('[data-open]',root).forEach(button=>button.addEventListener('click',event=>{event.preventDefault();openExercise(button.dataset.open);}));
-  $$('[data-favorite]',root).forEach(button=>button.addEventListener('click',event=>{
-    event.stopPropagation();
-    const id=button.dataset.favorite; const ids=getFavorites();
-    const next=ids.includes(id)?ids.filter(x=>x!==id):[...ids,id];
-    setFavorites(next); renderCatalog(); if(currentView==='favorites')renderFavorites();
-  }));
-}
-$('#searchExercises').addEventListener('input',renderCatalog);
-$('#muscleFilter').addEventListener('change',renderCatalog);
-$$('[data-place]').forEach(button=>button.addEventListener('click',()=>{
-  activePlace=button.dataset.place;
-  $$('[data-place]').forEach(x=>x.classList.toggle('active',x===button)); renderCatalog();
-}));
-$('#clearSearch').addEventListener('click',()=>{$('#searchExercises').value='';renderCatalog();$('#searchExercises').focus();});
-$('#resetFilters').addEventListener('click',()=>{
-  $('#searchExercises').value='';$('#muscleFilter').value='all';activePlace='all';
-  $$('[data-place]').forEach(x=>x.classList.toggle('active',x.dataset.place==='all'));renderCatalog();
-});
-
-function openExercise(id){
-  const item=EXERCISES.find(x=>x.id===id); if(!item)return;
-  lastFocusedElement=document.activeElement;
-  const fav=getFavorites().includes(id);
-  const placeLabel=item.place==='gym'?'Тренажёрный зал':item.place==='pool'?'Бассейн':'Восстановление';
-  $('#detailContent').innerHTML=`<div class="detail-hero"><img src="./${item.image}" alt="Схема упражнения ${item.name}"><div class="detail-overline">${placeLabel} · ${item.groupLabel}</div><h2 id="detailTitle">${item.name}</h2><p>${item.summary}</p></div>
-  <div class="detail-grid"><div class="detail-main">
-    <section class="detail-block"><div class="detail-heading"><span>01</span><h3>Задействованные мышцы</h3></div><div class="muscle-map"><img src="./${item.anatomy}" alt="Условная схема группы мышц"><div><b>Основные</b><p>${item.primary}</p><b>Дополнительные</b><p>${item.secondary}</p></div></div></section>
-    <section class="detail-block"><div class="detail-heading"><span>02</span><h3>Оборудование и настройка</h3></div><div class="equipment-copy"><b>${item.equipment}</b><p>${item.setup}</p></div></section>
-    <section class="detail-block"><div class="detail-heading"><span>03</span><h3>Пошаговая техника</h3></div><ol class="step-list">${item.steps.map((step,i)=>`<li><span>${i+1}</span><p>${step}</p></li>`).join('')}</ol></section>
-  </div><aside class="detail-side"><div class="restriction-card"><div class="restriction-title"><span>!</span><b>Ограничения и контроль</b></div><p>${item.limits}</p><div class="restriction-divider"></div><small>Индивидуальная переносимость</small><p>${item.individual}</p></div><div class="detail-reminder"><b>Остановись при симптомах</b><p>При усилении боли, распространении боли дальше по ноге, онемении или слабости прекрати движение. Не пытайся продолжать через симптомы.</p></div><button class="primary-btn full" id="detailFavorite">${fav?'♥ В избранном':'♡ Добавить в избранное'}</button></aside></div>`;
-  $('#detailFavorite').addEventListener('click',()=>{
-    const ids=getFavorites();setFavorites(ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]);
-    const now=getFavorites().includes(id);$('#detailFavorite').textContent=now?'♥ В избранном':'♡ Добавить в избранное';
-    renderCatalog();if(currentView==='favorites')renderFavorites();
-  });
-  $('#exerciseModal').hidden=false;document.body.classList.add('modal-open');$('#closeExercise').focus();
-}
-function closeExercise(){ $('#exerciseModal').hidden=true;document.body.classList.remove('modal-open');if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
-$('#closeExercise').addEventListener('click',closeExercise);
-$('#exerciseModal').addEventListener('click',event=>{if(event.target===$('#exerciseModal'))closeExercise();});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('#exerciseModal').hidden)closeExercise();});
-
-const date=new Date();
-$('#todayLabel').textContent=date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'}).toLocaleUpperCase('ru');
-$('#checkDate').textContent=date.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).toLocaleUpperCase('ru');
-$('#painRange').addEventListener('input',event=>$('#painValue').textContent=`${event.target.value} / 10`);
-$('#saveCheck').addEventListener('click',()=>{
-  const list=getCheckins();
-  const symptoms=$$('input[name="symptom"]:checked').map(x=>x.value);
-  const record={date:new Date().toISOString(),pain:Number($('#painRange').value),feeling:$('#feeling').value,symptoms,note:$('#noteText').value.trim()};
-  list.unshift(record);
-  const ok=safeWrite(CHECKINS_KEY,list.slice(0,150));
-  $('#saveNote').textContent=ok?'Запись сохранена на этом устройстве. Это не медицинская оценка.':'Не удалось сохранить запись: проверь свободное место и настройки браузера.';
-  if(ok){$('#noteText').value='';$$('input[name="symptom"]').forEach(x=>x.checked=false);renderHistory();}
-});
-function renderHistory(){
-  const list=getCheckins();
-  $('#logCount').textContent=list.length;
-  $('#avgPain').textContent=list.length?(list.reduce((sum,x)=>sum+(Number(x.pain)||0),0)/list.length).toFixed(1)+'/10':'—';
-  $('#historyList').innerHTML=list.length?list.slice(0,25).map(item=>{
-    const symptoms=Array.isArray(item.symptoms)&&item.symptoms.length?`<div class="history-symptoms">${item.symptoms.map(s=>`<span>${escapeHtml(s)}</span>`).join('')}</div>`:'';
-    const note=item.note?`<p class="history-note">${escapeHtml(item.note)}</p>`:'';
-    return `<article class="history-row"><div class="history-date"><b>${formatDate(item.date,{day:'numeric',month:'long',year:'numeric'})}</b><small>${escapeHtml(item.feeling||'')}</small>${symptoms}${note}</div><span class="pain-badge">${Number(item.pain)||0}/10</span></article>`;
-  }).join(''):'<div class="empty-state small-empty"><b>Пока нет записей</b><span>Первая отметка появится здесь.</span></div>';
-}
-function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
-$('#clearHistory').addEventListener('click',()=>{
-  if(confirm('Удалить все записи самочувствия с этого устройства?')){localStorage.removeItem(CHECKINS_KEY);renderHistory();$('#saveNote').textContent='История очищена.';}
-});
-
-window.addEventListener('online',()=>$('#connectionLabel').textContent='ПОДКЛЮЧЕНИЕ ЕСТЬ');
-window.addEventListener('offline',()=>$('#connectionLabel').textContent=navigator.serviceWorker?.controller?'ОФЛАЙН · КЕШ ГОТОВ':'НЕТ СЕТИ');
-$('#connectionLabel').textContent=navigator.onLine?'ЛОКАЛЬНЫЕ ДАННЫЕ':(navigator.serviceWorker?.controller?'ОФЛАЙН · КЕШ ГОТОВ':'НЕТ СЕТИ');
-window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;$('#installBtn').hidden=false;});
-$('#installBtn').addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;$('#installBtn').hidden=true;});
-if('serviceWorker' in navigator && location.protocol!=='file:'){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>navigator.serviceWorker.ready).then(()=>{$('#connectionLabel').textContent=navigator.onLine?'КЕШ ГОТОВ':'ОФЛАЙН · КЕШ ГОТОВ';}).catch(()=>$('#connectionLabel').textContent='ОФЛАЙН-КЕШ НЕ УСТАНОВЛЕН'));
-}
-
-updateFavoriteCounters();renderCatalog();renderHistory();
-const initial=location.hash.replace('#','');if(TITLES[initial])showView(initial);
+if('serviceWorker'in navigator&&location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}

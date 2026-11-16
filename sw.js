@@ -1,54 +1,27 @@
-const CACHE_NAME = 'fit-master-v03';
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./exercises-data.js",
-  "./exercises.json",
-  "./manifest.webmanifest",
-  "./icon.svg",
-  "./assets/icon-180.png",
-  "./assets/icon-192.png",
-  "./assets/icon-512.png",
-  "./assets/anatomy/arms.svg",
-  "./assets/anatomy/back.svg",
-  "./assets/anatomy/chest.svg",
-  "./assets/anatomy/legs.svg",
-  "./assets/exercises/biceps-machine.svg",
-  "./assets/exercises/chest-fly.svg",
-  "./assets/exercises/chest-press.svg",
-  "./assets/exercises/flat-walk.svg",
-  "./assets/exercises/hip-abduction.svg",
-  "./assets/exercises/hip-adduction.svg",
-  "./assets/exercises/lateral-raise.svg",
-  "./assets/exercises/leg-extension.svg",
-  "./assets/exercises/reverse-fly-supported.svg",
-  "./assets/exercises/row-chest-supported.svg",
-  "./assets/exercises/seated-leg-curl.svg",
-  "./assets/exercises/triceps-machine.svg",
-  "./assets/exercises/water-arms.svg",
-  "./assets/exercises/water-walk.svg"
+const CACHE='fit-master-v5-r2';
+const FILES=[
+  './','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg',
+  './assets/chest-supported-row.svg','./assets/leg-extension.svg','./assets/arm-machine.svg',
+  './assets/anatomy/anatomy-front.svg','./assets/anatomy/anatomy-back.svg',
+  './assets/machines/leg-extension.jpg','./assets/machines/seated-calf-raise.jpg','./assets/machines/chest-supported-row.jpg'
 ];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('fit-master-') && key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  if (request.method !== 'GET') return;
-  const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
-  if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).then(response => {
-      const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy)); return response;
-    }).catch(() => caches.match('./index.html')));
-    return;
-  }
-  event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
-    if (response && response.ok) { const copy=response.clone(); caches.open(CACHE_NAME).then(cache=>cache.put(request,copy)); }
-    return response;
-  }).catch(() => caches.match('./index.html'))));
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('fit-master-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+  event.respondWith((async()=>{
+    const cached=await caches.match(request);
+    if(cached)return cached;
+    try{
+      const response=await fetch(request);
+      if(response&&response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(request,copy));}
+      return response;
+    }catch(error){
+      if(request.mode==='navigate')return caches.match('./index.html');
+      return new Response('',{status:504,statusText:'Offline resource unavailable'});
+    }
+  })());
 });
