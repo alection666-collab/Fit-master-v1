@@ -1,7 +1,7 @@
 {
   "name": "FIT MASTER — зал и бассейн",
   "short_name": "FIT MASTER",
-  "description": "FIT MASTER v0.5 — локальный конструктор тренировок, журнал и прогресс для зала и бассейна",
+  "description": "FIT MASTER v0.6 — локальный конструктор тренировок, журнал и прогресс для зала и бассейна",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
