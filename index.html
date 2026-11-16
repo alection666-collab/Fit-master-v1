@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<meta name="description" content="FIT MASTER — офлайн-каталог упражнений для зала и бассейна с дневником самочувствия.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./assets/icon-180.png">
+<link rel="stylesheet" href="./styles.css">
+<title>FIT MASTER — каталог упражнений</title>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#catalog" aria-label="FIT MASTER — каталог">
+      <span class="brand-mark">F<span>+</span></span>
+      <span class="brand-copy"><b>FIT MASTER</b><small>TRAINING LIBRARY</small></span>
+    </a>
+    <nav class="side-nav" aria-label="Основная навигация">
+      <button class="nav-item active" data-view="catalog"><span class="nav-icon">▦</span><span>Каталог</span></button>
+      <button class="nav-item" data-view="favorites"><span class="nav-icon">♡</span><span>Избранное</span><span class="nav-count" id="favCount">0</span></button>
+      <button class="nav-item" data-view="journal"><span class="nav-icon">◷</span><span>Дневник</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="offline-pill"><i></i><span>Работает офлайн</span></div>
+      <small>Все материалы и изображения сохранены в приложении</small>
+      <div class="sidebar-version">FIT MASTER <b>v0.3</b></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><div class="eyebrow" id="todayLabel">ТВОЯ ТРЕНИРОВОЧНАЯ БИБЛИОТЕКА</div><h1 id="pageTitle">Упражнения</h1></div>
+      <div class="top-actions"><span class="status-chip"><i></i><span id="connectionLabel">OFFLINE READY</span></span><button class="install-btn" id="installBtn" hidden>Установить</button><div class="avatar">FM</div></div>
+    </header>
+
+    <section class="view active" id="view-catalog">
+      <div class="catalog-hero">
+        <div class="hero-copy"><span class="tag">ЗАЛ · БАССЕЙН · ВОССТАНОВЛЕНИЕ</span><h2>Двигайся<br><em>осознанно.</em></h2><p>Понятные схемы, мышцы, оборудование и техника. Выбирай только те движения, которые не усиливают симптомы и согласованы с твоим специалистом.</p></div>
+        <div class="hero-visual"><div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div><div class="hero-monogram">FM<span>03</span></div><div class="hero-caption">CONTROL<br>BEFORE LOAD</div></div>
+      </div>
+
+      <div class="catalog-intro"><div><div class="eyebrow">БИБЛИОТЕКА ДВИЖЕНИЙ</div><h2>Найди нужное упражнение</h2><p>Приоритет каталога: спина, ноги и руки. Грудь и плечи — дополнительные группы. Пресс — второстепенно; прямые упражнения на корпус пока не включены из-за требований к стабилизации поясницы.</p></div><div class="catalog-count"><strong id="resultCount">0</strong><span>упражнений</span></div></div>
+
+      <div class="search-panel">
+        <label class="search-box"><span>⌕</span><input id="searchExercises" type="search" placeholder="Поиск по упражнению, мышце или оборудованию…" autocomplete="off"><button id="clearSearch" type="button" aria-label="Очистить поиск" hidden>×</button></label>
+        <div class="filter-row">
+          <div class="filter-chips" role="group" aria-label="Тип активности">
+            <button class="filter-chip active" data-place="all">Все</button><button class="filter-chip" data-place="gym">Тренажёрный зал</button><button class="filter-chip" data-place="pool">Бассейн</button><button class="filter-chip" data-place="recovery">Восстановление</button>
+          </div>
+          <label class="select-wrap"><span>Группа мышц</span><select id="muscleFilter"><option value="all">Все группы</option><option value="back">Спина</option><option value="legs">Ноги</option><option value="arms">Руки</option><option value="chest">Грудь</option><option value="shoulders">Плечи</option><option value="core" disabled>Пресс — пока без упражнений</option><option value="general">Общая активность</option></select></label>
+        </div>
+      </div>
+
+      <div class="priority-strip"><span class="priority-dot"></span><span><b>Основной фокус</b> — спина, ноги, руки</span><span class="priority-divider"></span><span>Грудь и плечи — дополнительно</span></div>
+      <div class="library-grid" id="libraryGrid" aria-live="polite"></div>
+      <div class="empty-state" id="emptyState" hidden><div class="empty-icon">⌕</div><b>Ничего не найдено</b><span>Измени запрос или фильтры.</span><button class="secondary-btn" id="resetFilters">Сбросить фильтры</button></div>
+
+      <details class="week-details">
+        <summary><span><b>Пример недельного ритма</b><small>2–3 активности · без обязательного расписания</small></span><span class="summary-plus">＋</span></summary>
+        <div class="week-grid">
+          <article class="week-card"><span class="week-index">01</span><span class="week-type gym">ЗАЛ</span><h3>Спина + руки</h3><p>Варианты с опорой грудью/спиной и лёгким сопротивлением, если индивидуально согласованы.</p></article>
+          <article class="week-card"><span class="week-index">02</span><span class="week-type pool">БАССЕЙН</span><h3>Вода + движение</h3><p>Неспешная ходьба и мягкие движения руками только при отсутствии провокации симптомов.</p></article>
+          <article class="week-card"><span class="week-index">03</span><span class="week-type gym">ЗАЛ</span><h3>Ноги + руки</h3><p>Изолированные тренажёры с устойчивой спинкой и комфортным положением таза.</p></article>
+        </div>
+      </details>
+
+      <div class="safety-note"><div class="safety-icon">!</div><div><b>Перед любым упражнением</b><p>Это образовательная библиотека, не медицинское назначение и не гарантия безопасности. Намеренно не включены становая тяга, приседания со штангой, тяги в наклоне без опоры, гиперэкстензии, скручивания, планки и движения с выраженной осевой компрессией или тяжёлой стабилизацией корпуса. При усилении боли, распространении боли дальше по ноге, онемении или слабости немедленно прекрати движение. Индивидуальные ограничения и возвращение к нагрузке согласуй с врачом или физиотерапевтом.</p></div></div>
+    </section>
+
+    <section class="view" id="view-favorites">
+      <div class="section-hero"><div><div class="eyebrow">ТВОЯ ПОДБОРКА</div><h2>Избранное</h2><p>Упражнения, которые ты сохранил для быстрого доступа. Сохранение работает только на этом устройстве.</p></div><div class="section-art heart-art">♡</div></div>
+      <div class="library-grid" id="favoritesGrid"></div>
+      <div class="empty-state" id="favoritesEmpty" hidden><div class="empty-icon">♡</div><b>Пока ничего нет</b><span>Нажми на сердечко в карточке упражнения, чтобы добавить его сюда.</span><button class="secondary-btn" data-go="catalog">Открыть каталог</button></div>
+    </section>
+
+    <section class="view" id="view-journal">
+      <div class="section-hero"><div><div class="eyebrow">ЛОКАЛЬНЫЙ ДНЕВНИК</div><h2>Самочувствие</h2><p>Фиксируй ощущения до или после активности. Записи не анализируются для постановки диагноза и не определяют, можно ли тренироваться.</p></div><div class="section-art journal-art">◷</div></div>
+      <div class="journal-layout">
+        <article class="panel check-panel">
+          <div class="panel-title"><div><div class="eyebrow">НОВАЯ ЗАПИСЬ</div><h3>Как ты себя чувствуешь?</h3></div><span class="check-date" id="checkDate">СЕГОДНЯ</span></div>
+          <label class="field-label" for="painRange">Уровень боли по твоим ощущениям <b id="painValue">0 / 10</b></label>
+          <input id="painRange" type="range" min="0" max="10" value="0">
+          <div class="range-ends"><span>Нет боли</span><span>Сильная боль</span></div>
+          <label class="field-label" for="feeling">Общее самочувствие</label>
+          <select id="feeling"><option value="Хорошее">Хорошее</option><option value="Нормальное">Нормальное</option><option value="Усталость">Усталость</option><option value="Есть симптомы">Есть симптомы</option></select>
+          <div class="symptom-group"><div class="field-label">Отметь, если сейчас присутствует</div><label class="symptom-option"><input type="checkbox" value="Боль отдаёт в ногу" name="symptom"><span>Боль отдаёт в ногу</span></label><label class="symptom-option"><input type="checkbox" value="Онемение" name="symptom"><span>Онемение</span></label><label class="symptom-option"><input type="checkbox" value="Слабость" name="symptom"><span>Слабость</span></label></div>
+          <label class="field-label" for="noteText">Заметка <small>необязательно</small></label><textarea id="noteText" rows="3" maxlength="500" placeholder="Например: после прогулки, утром, после бассейна…"></textarea>
+          <button class="primary-btn full" id="saveCheck">Сохранить запись <b>✓</b></button><div class="saved-note" id="saveNote" aria-live="polite"></div>
+          <div class="journal-warning"><b>Важно:</b> если боль усиливается или распространяется дальше по ноге, появляются онемение или слабость — прекрати упражнение и обратись за медицинской оценкой. Новая/нарастающая слабость, онемение промежности, нарушения мочеиспускания или контроля кишечника требуют срочной медицинской помощи.</div>
+        </article>
+        <div class="journal-side">
+          <div class="stats-grid compact-stats"><article class="stat-card"><span>Записей</span><strong id="logCount">0</strong><small>На этом устройстве</small></article><article class="stat-card"><span>Средняя отметка боли</span><strong id="avgPain">—</strong><small>Не медицинский показатель</small></article></div>
+          <article class="panel history-panel"><div class="panel-title"><div><div class="eyebrow">ИСТОРИЯ</div><h3>Последние записи</h3></div><button class="text-btn" id="clearHistory">Очистить</button></div><div id="historyList" class="history-list"><div class="empty-state small-empty">Пока нет записей.</div></div></article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer"><span>FIT MASTER <b>•</b> VERSION 0.3</span><span>ЛОКАЛЬНЫЕ ДАННЫЕ · БЕЗ АНАЛИТИКИ</span></footer>
+  </main>
+  <nav class="mobile-nav" aria-label="Основная навигация"><button class="active" data-view="catalog"><span>▦</span>Каталог</button><button data-view="favorites"><span>♡</span>Избранное <i id="mobileFavCount">0</i></button><button data-view="journal"><span>◷</span>Дневник</button></nav>
+</div>
+
+<div class="modal-backdrop" id="exerciseModal" hidden>
+  <article class="exercise-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <button class="modal-close" id="closeExercise" aria-label="Закрыть">×</button>
+    <div id="detailContent"></div>
+  </article>
+</div>
+<script src="./exercises-data.js" defer></script>
+<script src="./app.js" defer></script>
+</body></html>
