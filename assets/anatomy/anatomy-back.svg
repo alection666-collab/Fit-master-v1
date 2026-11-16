@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="title desc">
+<title id="title">Задняя поверхность мышц</title><desc id="desc">Условная учебная схема основных мышечных групп сзади</desc>
+<defs>
+ <linearGradient id="skin" x1="0" x2="1"><stop stop-color="#34475b"/><stop offset=".5" stop-color="#52677d"/><stop offset="1" stop-color="#34475b"/></linearGradient>
+ <linearGradient id="muscle" x1="0" x2="1"><stop stop-color="#8fcf65"/><stop offset="1" stop-color="#c9f27a"/></linearGradient>
+ <linearGradient id="aqua" x1="0" x2="1"><stop stop-color="#3eaaa8"/><stop offset="1" stop-color="#73d8ce"/></linearGradient>
+ <linearGradient id="violet" x1="0" x2="1"><stop stop-color="#786bd0"/><stop offset="1" stop-color="#a99cff"/></linearGradient>
+</defs>
+<rect width="640" height="760" rx="28" fill="#0d1722"/>
+<g stroke="#8193a7" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+ <circle cx="320" cy="67" r="37" fill="url(#skin)"/>
+ <path d="M296 108 L296 133 Q266 137 235 153 L202 176 L220 224 L247 208 L260 272 L250 344 L271 374 L277 440 L265 488 L251 562 L245 670 Q258 686 285 678 L302 562 L320 510 L338 562 L355 678 Q382 686 395 670 L389 562 L375 488 L363 440 L369 374 L390 344 L380 272 L393 208 L420 224 L438 176 L405 153 Q374 137 344 133 L344 108Z" fill="url(#skin)"/>
+ <path d="M235 153 Q205 165 185 201 L147 303 Q137 328 153 339 Q168 347 179 325 L228 238 L260 195" fill="url(#skin)"/>
+ <path d="M405 153 Q435 165 455 201 L493 303 Q503 328 487 339 Q472 347 461 325 L412 238 L380 195" fill="url(#skin)"/>
+ <path d="M265 488 Q245 520 241 567 L224 680 Q221 710 239 718 Q258 724 268 697 L291 594 L309 526" fill="url(#skin)"/>
+ <path d="M375 488 Q395 520 399 567 L416 680 Q419 710 401 718 Q382 724 372 697 L349 594 L331 526" fill="url(#skin)"/>
+</g>
+<g stroke="#d6f4aa" stroke-width="2" opacity=".98">
+ <path d="M286 151 Q320 136 354 151 L371 198 Q347 231 320 239 Q293 231 269 198Z" fill="url(#aqua)"/>
+ <path d="M246 164 Q264 143 286 155 L279 204 Q255 218 235 195Z" fill="url(#muscle)"/>
+ <path d="M394 164 Q376 143 354 155 L361 204 Q385 218 405 195Z" fill="url(#muscle)"/>
+ <path d="M270 224 Q290 213 309 239 L301 321 Q281 343 258 320 L250 267Z" fill="url(#muscle)"/>
+ <path d="M370 224 Q350 213 331 239 L339 321 Q359 343 382 320 L390 267Z" fill="url(#muscle)"/>
+ <path d="M290 238 Q320 255 350 238 L345 346 Q320 362 295 346Z" fill="#40566b"/>
+ <path d="M244 212 Q262 205 278 222 L269 279 Q250 289 236 265Z" fill="url(#violet)"/>
+ <path d="M396 212 Q378 205 362 222 L371 279 Q390 289 404 265Z" fill="url(#violet)"/>
+ <path d="M270 356 Q292 342 317 363 L311 426 Q289 445 266 420Z" fill="url(#aqua)"/>
+ <path d="M370 356 Q348 342 323 363 L329 426 Q351 445 374 420Z" fill="url(#aqua)"/>
+ <path d="M271 434 Q294 423 316 438 L307 505 Q286 519 269 492Z" fill="url(#violet)"/>
+ <path d="M369 434 Q346 423 324 438 L333 505 Q354 519 371 492Z" fill="url(#violet)"/>
+ <path d="M273 548 Q291 535 305 551 L292 650 Q278 666 266 642Z" fill="url(#muscle)"/>
+ <path d="M367 548 Q349 535 335 551 L348 650 Q362 666 374 642Z" fill="url(#muscle)"/>
+</g>
+<path d="M320 250 L320 420" stroke="#d8e0e8" stroke-width="3" stroke-dasharray="5 8" opacity=".32"/>
+<g fill="#dce7f0" font-family="system-ui, sans-serif" font-size="16" font-weight="700">
+ <text x="24" y="150">Трапеции</text><path d="M130 145 L270 174" stroke="#67c9c0" stroke-width="2" fill="none"/>
+ <text x="430" y="250">Широчайшие</text><path d="M425 245 L375 275" stroke="#9ccf6a" stroke-width="2" fill="none"/>
+ <text x="24" y="300">Трицепс</text><path d="M100 295 L244 245" stroke="#a99cff" stroke-width="2" fill="none"/>
+ <text x="430" y="430">Ягодичные</text><path d="M422 425 L368 455" stroke="#67c9c0" stroke-width="2" fill="none"/>
+ <text x="24" y="590">Задняя поверхность бедра</text><path d="M210 585 L275 470" stroke="#a99cff" stroke-width="2" fill="none"/>
+ <text x="430" y="630">Икроножные</text><path d="M422 625 L372 595" stroke="#9ccf6a" stroke-width="2" fill="none"/>
+</g>
+<text x="320" y="738" fill="#7f91a5" font-family="system-ui,sans-serif" font-size="12" text-anchor="middle">УЧЕБНАЯ СХЕМА · НЕ МЕДИЦИНСКИЙ АТЛАС</text>
+</svg>
