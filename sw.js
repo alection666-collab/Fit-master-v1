@@ -1,9 +1,9 @@
-const CACHE='fit-master-v5-r4';
+const CACHE='fit-master-v5-r5';
 const FILES=[
   './','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg',
   './assets/chest-supported-row.svg','./assets/leg-extension.svg','./assets/arm-machine.svg',
   './assets/anatomy/anatomy-front.svg','./assets/anatomy/anatomy-back.svg',
-  './assets/machines/leg-extension.jpg','./assets/machines/seated-calf-raise.jpg','./assets/machines/chest-supported-row.jpg'
+  './assets/machines/leg-extension.jpg','./assets/machines/seated-calf-raise.jpg','./assets/machines/chest-supported-row.jpg','./assets/machines/user-hip-combo.jpg','./assets/machines/user-butterfly.jpg'
 ];
 const PHOTO_FILES=[
   'https://upload.wikimedia.org/wikipedia/commons/0/0a/Woman_using_a_seated_cable_row_machine_at_the_gym.jpg',
