@@ -1,4 +1,4 @@
-const CACHE='fit-master-v5-r3';
+const CACHE='fit-master-v5-r4';
 const FILES=[
   './','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg',
   './assets/chest-supported-row.svg','./assets/leg-extension.svg','./assets/arm-machine.svg',
